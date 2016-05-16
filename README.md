@@ -41,7 +41,7 @@ Leverages [UI Bootstrap](http://angular-ui.github.io/bootstrap/) and [UI Router]
         {
           heading: 'Accounts',
           route:   'user.accounts',
-          disabled: true
+          disable: true
         }
       ];
   ```
@@ -58,26 +58,28 @@ Leverages [UI Bootstrap](http://angular-ui.github.io/bootstrap/) and [UI Router]
       }
   ```
 
-1. Declare the following in your the parent HTML view template `<tabs data="tabData" type="tabs" />`.
+1. Declare the following in your the parent HTML view template `<tabs data="tabData" type="tabs"></tabs>`.
 
   Optional attributes for the `<tabs>` (which are passed on to the UI Bootstrap component) are:
 
   * `type: [ 'tabs' | 'pills' ]`
   * `vertical: boolean`
   * `justified: boolean`
+  * `class: string`
+  * `templateUrl: <template url name>`
 
-1. Define a `ui-view` placeholder for the child content panes in the same HTML view template eg. `<ui-view></ui-view>`.
-
+  NOTE: If you use a customer template, you may need to define a `ui-view` placeholder for the child content panes in the same HTML view template eg. `<ui-view></ui-view>`.
 
 ## Tips
 
 * UI Bootstrap Tabs will not select a tab by default.  If you want it to, specify the target sub-route when you
   show the tabs (ie. link the `ui-view` containing the tabs with the default (first) element as the sub-route `example/#/user/settings` in the example.)
 * You can override the default directive template by specifying `template-url="my_template.html"` on the `<tabs>` element.
-* You can enable / disable tabs by specifying `disabled: true` in the `tabData` (can be dynamically set).
-* You can use `<tab-heading>` in a custom directive template to add any HTML into the tab title.
+* You can enable / disable tabs by specifying `disable: true` in the `tabData` (can be dynamically set).
+* You can use `<tab-heading>` in a custom directive template to add any HTML into the tab title (eg. icons)
 * You can update the `tabData` variable dynamically, if you want to.
 * You can move the `<tabs>` tag around to wherever you want the tab listing to appear.  (left-positioned is the best spot to enable responsive design.).
+* Each tab will have a default class of `tab`, an active tab will have the `active` class.
 
 
 ## Running Locally
@@ -100,7 +102,9 @@ Leverages [UI Bootstrap](http://angular-ui.github.io/bootstrap/) and [UI Router]
 
 
 ## History
-* 1.7.0 Added `uib` prefix for UI Bootstrap elements (as per v0.14.0).    See [#47](/../../pull/47).
+* 2.0.0 Added `class` and `template-url` attributes on `uib-tab` and began using `<uib-tab-heading>` tag.
+* 1.8.0 Added inline template by default (as requested) and allowed customer classes parameter.
+* 1.7.0 Added `uib` prefix for UI Bootstrap elements (as per v0.14.0).  See [#47](/../../pull/47).  <br/>Upgraded angular-bootstrap to v14.0.
 * 1.6.0 Renamed `disabled` attribute to `disable` in line with UI Bootstrap `<tab>`.  See [#39](/../../issues/39).
 * 1.5.1 Removed `bower_components` from repository.  See [#40](/../../pull/40).
 * 1.5.0 Bumped `angular-bootstrap` dependency to v0.13.0 (fixes default tab being auto-selected).

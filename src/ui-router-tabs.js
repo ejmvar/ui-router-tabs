@@ -7,6 +7,8 @@
  * (uses tabset and tab directives in ui.bootstrap and route changes in ui.router)
  *
  * You can define (for styling) the attributes type="pills" and vertical="true | false" and justified="true | false"
+ * You can also specify arbitrary CSS classes to be added to each tab by providing them as values with the "class" parameter
+ * (for the 'tabs' or 'tab' elements, and the 'template-url' for custom tab rendering.
  *
  * Watches the $stateChangeXX events so it can update the parent tab(s) when using $state.go or ui-sref anchors.
  *
@@ -22,7 +24,7 @@ if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.ex
   module.exports = 'ui.router.tabs';
 }
 
-angular.module('ui.router.tabs', []);
+angular.module('ui.router.tabs', ['ngSanitize']);
 angular.module('ui.router.tabs').directive(
   'tabs', ['$rootScope', '$state', function($rootScope, $state) {
 
@@ -32,7 +34,8 @@ angular.module('ui.router.tabs').directive(
         tabs: '=data',
         type: '@',
         justified: '@',
-        vertical: '@'
+        vertical: '@',
+        class: '@'
       },
       link: function(scope) {
 
@@ -74,7 +77,7 @@ angular.module('ui.router.tabs').directive(
         };
 
         /* whether to highlight given route as part of the current state */
-        $scope.active = function(tab) {
+        $scope.is_active = function(tab) {
 
           var isAncestorOfCurrentRoute = $state.includes(tab.route, tab.params, tab.options);
           return isAncestorOfCurrentRoute;
@@ -83,10 +86,15 @@ angular.module('ui.router.tabs').directive(
         $scope.update_tabs = function() {
 
           // sets which tab is active (used for highlighting)
-          angular.forEach($scope.tabs, function(tab) {
+          angular.forEach($scope.tabs, function(tab, index) {
             tab.params = tab.params || {};
             tab.options = tab.options || {};
-            tab.active = $scope.active(tab);
+            tab.class = tab.class || '';
+
+            tab.active = $scope.is_active(tab);
+            if (tab.active) {
+              $scope.tabs.active = index;
+            }
           });
         };
 
@@ -99,11 +107,26 @@ angular.module('ui.router.tabs').directive(
 }]
 ).run(
 ['$templateCache', function($templateCache) {
-    var DEFAULT_TEMPLATE = '<div><uib-tabset class="tab-container" type="{{type}}" vertical="{{vertical}}" ' +
-      'justified="{{justified}}">' + '<uib-tab class="tab" ng-repeat="tab in tabs" heading="{{tab.heading}}" ' +
-      'active="tab.active" disable="tab.disable" ng-click="go(tab)">' +
-      '</uib-tab></uib-tabset></div>';
+    var CUSTOM_UI_VIEW_TEMPLATE = '<div>' +
+      '<uib-tabset active="tabs.active" class="tab-container" type="{{type}}" vertical="{{vertical}}" justified="{{justified}}" class="{{class}}">' +
+      '<uib-tab class="tab {{tab.class}}" ng-repeat="tab in tabs" ' +
+      'disable="tab.disable" ng-click="go(tab)">' +
+      '<uib-tab-heading ng-bind-html="tab.heading"></uib-tab-heading>' +
+      '</uib-tab>' +
+      '</uib-tabset>' +
+      '</div>';
 
-    $templateCache.put('ui-router-tabs-default-template.html', DEFAULT_TEMPLATE);
+    var INLINE_TEMPLATE =
+      '<uib-tabset active="tabs.active" class="tab-container" type="{{type}}" vertical="{{vertical}}" justified="{{justified}}" class="{{class}}">' +
+      '<uib-tab class="tab {{tab.class}}" ng-repeat="tab in tabs" ' +
+      'disable="tab.disable" ng-click="go(tab)">' +
+      '<ui-view></ui-view>' +
+      '<uib-tab-heading ng-bind-html="tab.heading"></uib-tab-heading>' +
+      '</uib-tab>' +
+      '</uib-tabset>' +
+      '</div>';
+
+    $templateCache.put('ui-router-tabs-custom-ui-view-template.html', CUSTOM_UI_VIEW_TEMPLATE);
+    $templateCache.put('ui-router-tabs-default-template.html', INLINE_TEMPLATE);
 }]
 );
